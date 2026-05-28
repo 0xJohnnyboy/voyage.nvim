@@ -27,6 +27,10 @@ SETUP                                                           *voyage-setup*
       layout = "horizontal",   -- "horizontal" (left/right) | "vertical" (top/bottom)
       search_position = "top", -- "top" | "bottom"
       border = true,           -- true | false
+      kind_symbols = {
+        tag = " ",
+        category = "󰠱 ",
+      },
     },
   })
 <
@@ -48,6 +52,8 @@ Without argument, `search_links` is used.
 Example:
 >
   :Voyage search_links
+  :Voyage search_tags
+  :Voyage search_categories
 <
 
 ===============================================================================

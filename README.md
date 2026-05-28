@@ -13,6 +13,7 @@ It opens a popup UI with:
 ## Features
 
 - Tree navigation from Voyage JSON output (`vo --format json --tree`)
+- Supports Voyage modes: `links`, `tags`, `categories`
 - Parent nodes remain visible when a child matches search
 - Fold/unfold nodes (`h` / `l`)
 - Dangling links highlighted with warning style
@@ -52,6 +53,10 @@ require("voyage").setup({
     layout = "horizontal",    -- "horizontal" (left/right) | "vertical" (top/bottom)
     search_position = "top",  -- "top" | "bottom"
     border = true,            -- true | false
+    kind_symbols = {
+      tag = " ",
+      category = "󰠱 ",
+    },
   },
   win = {
     width = 0.9,
@@ -78,6 +83,16 @@ Without argument, `search_links` is used:
 ```vim
 :Voyage
 :Voyage search_links
+:Voyage search_tags
+:Voyage search_categories
+```
+
+### Suggested keymaps
+
+```lua
+vim.keymap.set("n", "<leader>vl", "<cmd>Voyage search_links<CR>", { desc = "Voyage: search links" })
+vim.keymap.set("n", "<leader>vt", "<cmd>Voyage search_tags<CR>", { desc = "Voyage: search tags" })
+vim.keymap.set("n", "<leader>vc", "<cmd>Voyage search_categories<CR>", { desc = "Voyage: search categories" })
 ```
 
 ## Interaction
