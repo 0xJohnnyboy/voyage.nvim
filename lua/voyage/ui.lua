@@ -5,6 +5,8 @@ local M = {}
 local ns = vim.api.nvim_create_namespace("voyage")
 vim.api.nvim_set_hl(0, "VoyageDangling", { default = true, link = "DiagnosticWarn" })
 vim.api.nvim_set_hl(0, "VoyageHasChildren", { default = true, bold = true })
+vim.api.nvim_set_hl(0, "VoyageTag", { default = true, link = "Special" })
+vim.api.nvim_set_hl(0, "VoyageCategory", { default = true, link = "Type" })
 
 local function make_float(width, height, row, col, enter, border, title)
   local buf = vim.api.nvim_create_buf(false, true)
@@ -195,26 +197,46 @@ function M.open(opts, root, load_node_cb)
 
     state.selected = math.max(1, math.min(state.selected, #state.visible))
     local lines = {}
+    local meta = {}
     for _, n in ipairs(state.visible) do
       local expandable = (#n.children > 0) or n.may_have_children
       local mark = (n.expanded and "▾ ") or (expandable and "▸ " or "  ")
       local pfx = string.rep("  ", n.depth)
+      local kind_prefix = ""
+      if n.node_kind == "tag" then
+        kind_prefix = (opts.ui.kind_symbols and opts.ui.kind_symbols.tag) or " "
+      elseif n.node_kind == "category" then
+        kind_prefix = (opts.ui.kind_symbols and opts.ui.kind_symbols.category) or "󰠱 "
+      end
       local suffix = n.dangling and "  " or ""
-      table.insert(lines, pfx .. mark .. n.label .. suffix)
+      local rendered = pfx .. mark .. kind_prefix .. n.label .. suffix
+      table.insert(lines, rendered)
+      table.insert(meta, {
+        kind = n.node_kind,
+        kind_start = #pfx + #mark,
+        kind_end = #pfx + #mark + #kind_prefix,
+        has_children = (#n.children > 0) or n.may_have_children,
+        dangling = n.dangling,
+        line_len = #rendered,
+      })
     end
     set_lines_locked(results_buf, lines)
 
     vim.api.nvim_buf_clear_namespace(results_buf, ns, 0, -1)
     vim.api.nvim_buf_add_highlight(results_buf, ns, "Visual", state.selected - 1, 0, -1)
 
-    for i, n in ipairs(state.visible) do
-      local line = lines[i]
-      if (#n.children > 0) or n.may_have_children then
-        local end_col = #line - (n.dangling and 4 or 0)
+    for i, m in ipairs(meta) do
+      if m.kind == "tag" and m.kind_end > m.kind_start then
+        vim.api.nvim_buf_add_highlight(results_buf, ns, "VoyageTag", i - 1, m.kind_start, m.kind_end)
+      elseif m.kind == "category" and m.kind_end > m.kind_start then
+        vim.api.nvim_buf_add_highlight(results_buf, ns, "VoyageCategory", i - 1, m.kind_start, m.kind_end)
+      end
+      if m.has_children then
+        local end_col = m.line_len - (m.dangling and 4 or 0)
         vim.api.nvim_buf_add_highlight(results_buf, ns, "VoyageHasChildren", i - 1, 0, math.max(0, end_col))
       end
-      if n.dangling then
-        vim.api.nvim_buf_add_highlight(results_buf, ns, "VoyageDangling", i - 1, math.max(0, #line - 3), -1)
+      if m.dangling then
+        vim.api.nvim_buf_add_highlight(results_buf, ns, "VoyageDangling", i - 1, math.max(0, m.line_len - 3), -1)
       end
     end
   end
