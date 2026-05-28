@@ -1,0 +1,6 @@
+:Voyage	voyage.txt	/*:Voyage*
+voyage	voyage.txt	/*voyage-intro*
+voyage-commands	voyage.txt	/*voyage-commands*
+voyage-interaction	voyage.txt	/*voyage-interaction*
+voyage-mappings	voyage.txt	/*voyage-mappings*
+voyage-setup	voyage.txt	/*voyage-setup*

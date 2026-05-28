@@ -1,0 +1,13 @@
+# Neovim / Lua test artifacts
+*.log
+
+# macOS
+.DS_Store
+
+# Vim / Neovim swap and backup
+*.swp
+*.swo
+*~
+
+# Local helper files
+.nvim.lua

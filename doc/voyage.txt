@@ -1,0 +1,95 @@
+*voyage.txt*             Voyage.nvim              Last change: 2026-05-28
+
+===============================================================================
+CONTENTS                                                    *voyage-contents*
+
+1. Introduction.............................................|voyage-intro|
+2. Setup....................................................|voyage-setup|
+3. Commands.................................................|voyage-commands|
+4. Interaction..............................................|voyage-interaction|
+5. Mappings.................................................|voyage-mappings|
+
+===============================================================================
+INTRODUCTION                                                   *voyage-intro*
+
+Voyage.nvim provides a popup picker to navigate note relations from `vo`.
+It uses the JSON contract from `voyage` v0.1.1:
+  vo --format json --tree --depth <N> <path-note.md>
+
+===============================================================================
+SETUP                                                           *voyage-setup*
+
+>
+  require("voyage").setup({
+    depth = 2,
+    vo_bin = "vo",
+    ui = {
+      layout = "horizontal",   -- "horizontal" (left/right) | "vertical" (top/bottom)
+      search_position = "top", -- "top" | "bottom"
+      border = true,           -- true | false
+    },
+  })
+<
+
+Defaults:
+- `depth = 2`
+- `ui.layout = "horizontal"`
+- `ui.search_position = "top"`
+
+===============================================================================
+COMMANDS                                                     *voyage-commands*
+
+:Voyage                                                        *:Voyage*
+:Voyage {function}
+
+Runs a public function from |voyage|.
+Without argument, `search_links` is used.
+
+Example:
+>
+  :Voyage search_links
+<
+
+===============================================================================
+INTERACTION                                                 *voyage-interaction*
+
+On open:
+- focus is in the search bar,
+- Insert mode is active,
+- typing updates filtering live.
+
+`<Esc>` behavior in search:
+- if query is empty: close popup,
+- if query is non-empty: switch to normal mode/navigation.
+
+In search normal mode, standard Vim edits apply (`dd`, `w`, `b`, etc.).
+
+===============================================================================
+MAPPINGS                                                     *voyage-mappings*
+
+Results panel (normal mode):
+  j/k      move selection
+  h/l      fold/unfold node
+  /        focus search and enter insert mode
+  <Tab>    focus preview
+  <S-Tab>  focus search
+  <CR>     open selected note
+  q        close popup
+
+Preview panel (normal mode):
+  j/k      scroll preview
+  <Tab>    focus search and enter insert mode
+  <S-Tab>  focus results
+  <CR>     open selected note
+  q        close popup
+
+Search panel:
+  insert: type to filter live
+  <Esc>   close if empty, else focus results
+  <Tab>   focus results
+  <S-Tab> focus preview
+  <CR>    focus results
+  q       close popup (normal mode)
+
+===============================================================================
+vim:tw=78:ts=8:noet:ft=help:norl:
