@@ -8,18 +8,21 @@ local function decode_or_error(stdout)
   if payload.error then
     return nil, payload.error
   end
-  if payload.schema_version ~= "1.0.0" then
+  if payload.schema_version ~= "1.1.0" and payload.schema_version ~= "1.0.0" then
     return nil, { code = "unsupported_schema", message = "unsupported schema_version: " .. tostring(payload.schema_version) }
   end
   return payload, nil
 end
 
-function M.fetch(opts, target, cb, depth)
+function M.fetch(opts, target, cb, depth, mode)
   local use_depth = depth or opts.depth
+  local use_mode = mode or "links"
   local cmd = {
     opts.vo_bin,
     "--format",
     "json",
+    "--mode",
+    use_mode,
     "--tree",
     "--depth",
     tostring(use_depth),

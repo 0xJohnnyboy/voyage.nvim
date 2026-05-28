@@ -11,9 +11,10 @@ local function mk_node(raw, parent, depth, key, max_depth)
     label = raw.label,
     path = raw.path,
     dangling = raw.dangling,
+    node_kind = raw.node_kind or "note",
     parent = parent,
     depth = depth,
-    expanded = depth < 1,
+    expanded = max_depth and (depth < max_depth) or (depth < 1),
     may_have_children = false,
     children_loaded = false,
     children = {},
@@ -24,11 +25,17 @@ local function mk_node(raw, parent, depth, key, max_depth)
   end
   node.children_loaded = #node.children > 0
   node.may_have_children = #node.children > 0 or ((not node.dangling) and max_depth and depth >= max_depth)
+  if node.parent == nil and #node.children == 0 and not node.dangling and node.node_kind == "note" then
+    -- Fallback for schemas/flows where root is returned without preloaded children.
+    node.may_have_children = true
+  end
   return node
 end
 
 function M.from_payload(payload, max_depth)
-  return mk_node(payload.root, nil, 0, "0", max_depth)
+  local root = mk_node(payload.root, nil, 0, "0", max_depth)
+  root.mode = payload.mode or "links"
+  return root
 end
 
 local function reindex_subtree(node, parent, depth, key)

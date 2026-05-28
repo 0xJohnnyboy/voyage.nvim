@@ -12,7 +12,7 @@ function M.setup(opts)
   M._config = config.build(opts)
 end
 
-function M.search_links()
+local function open_mode(mode)
   local target = vim.api.nvim_buf_get_name(0)
   if target == "" then
     vim.notify("Voyage: current buffer has no file", vim.log.levels.ERROR)
@@ -25,17 +25,22 @@ function M.search_links()
         return
       end
       ui.open(M._config, model.from_payload(payload, M._config.depth), function(path, cb)
-        vo.fetch(M._config, path, cb, 1)
+        vo.fetch(M._config, path, cb, 1, mode)
       end)
     end)
-  end)
+  end, nil, mode)
 end
 
--- Backward-compatible alias
-M.new = M.search_links
+function M.search_links()
+  open_mode("links")
+end
 
-function M.functions()
-  return command.public_functions(M)
+function M.search_tags()
+  open_mode("tags")
+end
+
+function M.search_categories()
+  open_mode("categories")
 end
 
 return M
