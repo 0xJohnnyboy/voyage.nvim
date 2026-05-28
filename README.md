@@ -1,11 +1,14 @@
 # Voyage.nvim
 
-Voyage.nvim is a lightweight Neovim plugin to navigate wikilink relations between notes using [`vo`](https://github.com/0xJohnnyboy/voyage).
+Voyage.nvim is a lightweight Neovim plugin to navigate wikilink relations between markdown notes using [`vo`](https://github.com/0xJohnnyboy/voyage).
 
 It opens a popup UI with:
 - a search field,
 - a relations tree,
 - a file preview pane.
+
+<img width="1911" height="957" alt="image" src="https://github.com/user-attachments/assets/d0ab8f57-fc5f-48ac-ba36-8a35222ea154" />
+
 
 ## Features
 
