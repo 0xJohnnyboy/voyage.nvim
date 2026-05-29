@@ -7,6 +7,7 @@ vim.api.nvim_set_hl(0, "VoyageDangling", { default = true, link = "DiagnosticWar
 vim.api.nvim_set_hl(0, "VoyageHasChildren", { default = true, bold = true })
 vim.api.nvim_set_hl(0, "VoyageTag", { default = true, link = "Special" })
 vim.api.nvim_set_hl(0, "VoyageCategory", { default = true, link = "Type" })
+vim.api.nvim_set_hl(0, "VoyageCycle", { default = true, link = "DiagnosticInfo" })
 
 local function make_float(width, height, row, col, enter, border, title)
   local buf = vim.api.nvim_create_buf(false, true)
@@ -188,7 +189,7 @@ function M.open(opts, root, load_node_cb)
   }
 
   local function render_results()
-    state.visible = model.visible_nodes(state.root, state.query)
+    state.visible = model.visible_nodes(state.root, state.query, { show_cycles = opts.ui.show_cycles })
     if #state.visible == 0 then
       set_lines_locked(results_buf, { "(no result)" })
       state.selected = 1
@@ -208,7 +209,13 @@ function M.open(opts, root, load_node_cb)
       elseif n.node_kind == "category" then
         kind_prefix = (opts.ui.kind_symbols and opts.ui.kind_symbols.category) or "󰠱 "
       end
-      local suffix = n.dangling and "  " or ""
+      local suffix = ""
+      if n.dangling then
+        suffix = suffix .. "  "
+      end
+      if n.is_cycle then
+        suffix = suffix .. "  ↺"
+      end
       local rendered = pfx .. mark .. kind_prefix .. n.label .. suffix
       table.insert(lines, rendered)
       table.insert(meta, {
@@ -217,6 +224,7 @@ function M.open(opts, root, load_node_cb)
         kind_end = #pfx + #mark + #kind_prefix,
         has_children = (#n.children > 0) or n.may_have_children,
         dangling = n.dangling,
+        cycle = n.is_cycle,
         line_len = #rendered,
       })
     end
@@ -237,6 +245,9 @@ function M.open(opts, root, load_node_cb)
       end
       if m.dangling then
         vim.api.nvim_buf_add_highlight(results_buf, ns, "VoyageDangling", i - 1, math.max(0, m.line_len - 3), -1)
+      end
+      if m.cycle then
+        vim.api.nvim_buf_add_highlight(results_buf, ns, "VoyageCycle", i - 1, math.max(0, m.line_len - 2), -1)
       end
     end
   end

@@ -53,6 +53,7 @@ require("voyage").setup({
     layout = "horizontal",    -- "horizontal" (left/right) | "vertical" (top/bottom)
     search_position = "top",  -- "top" | "bottom"
     border = true,            -- true | false
+    show_cycles = true,       -- true | false
     kind_symbols = {
       tag = " ",
       category = "󰠱 ",

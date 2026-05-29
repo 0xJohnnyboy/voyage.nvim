@@ -4,7 +4,19 @@ local function norm(s)
   return string.lower(s or "")
 end
 
+local function has_ancestor_id(parent, id)
+  local p = parent
+  while p do
+    if p.id == id then
+      return true
+    end
+    p = p.parent
+  end
+  return false
+end
+
 local function mk_node(raw, parent, depth, key, max_depth)
+  local is_cycle = (not raw.dangling) and parent ~= nil and has_ancestor_id(parent, raw.id)
   local node = {
     key = key,
     id = raw.id,
@@ -12,6 +24,7 @@ local function mk_node(raw, parent, depth, key, max_depth)
     path = raw.path,
     dangling = raw.dangling,
     node_kind = raw.node_kind or "note",
+    is_cycle = is_cycle,
     parent = parent,
     depth = depth,
     expanded = max_depth and (depth < max_depth) or (depth < 1),
@@ -84,23 +97,26 @@ function M.filter_map(root, query)
   return map
 end
 
-local function flatten(root, filter, query, out)
+local function flatten(root, filter, query, out, opts)
   if not filter[root.key] then
+    return
+  end
+  if opts and opts.show_cycles == false and root.is_cycle then
     return
   end
   table.insert(out, root)
   local force_open = query ~= nil and query ~= ""
   if force_open or root.expanded then
     for _, c in ipairs(root.children) do
-      flatten(c, filter, query, out)
+      flatten(c, filter, query, out, opts)
     end
   end
 end
 
-function M.visible_nodes(root, query)
+function M.visible_nodes(root, query, opts)
   local filter = M.filter_map(root, query)
   local out = {}
-  flatten(root, filter, query or "", out)
+  flatten(root, filter, query or "", out, opts or {})
   return out
 end
 

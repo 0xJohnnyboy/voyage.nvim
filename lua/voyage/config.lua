@@ -7,6 +7,7 @@ M.defaults = {
     layout = "horizontal", -- horizontal (left/right) | vertical (top/bottom)
     search_position = "top", -- top | bottom
     border = true,
+    show_cycles = true,
     kind_symbols = {
       tag = " ",
       category = "󰠱 ",
